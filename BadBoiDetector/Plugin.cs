@@ -23,33 +23,25 @@ namespace BadBoiDetector
 		SmodRevision = 0
 		)]
 	class Plugin : Smod2.Plugin
-	{
-     
-       
-     
-
-        public override void OnDisable()
+	{ 
+		public override void OnDisable()
 		{
-
-        }   
-
+		}   
+	
 		public override void OnEnable()
 		{
-
-           if(!this.GetConfigBool("bbd_disable"))
-            this.Info("Bad Boi Detector has been loaded.");
-
-        
-        }
+		   if(!this.GetConfigBool("bbd_disable"))
+			this.Info("Bad Boi Detector has been loaded.");
+		}
 
 		public override void Register()
 		{
-            this.AddConfig(new Smod2.Config.ConfigSetting("bbd_disable", false, Smod2.Config.SettingType.BOOL, true, "Disables Bad Boi Detector plugin."));
-            if (!this.GetConfigBool("bbd_disable"))
-            this.AddEventHandlers(new ServerEventHandler(this), Priority.Normal);
-            
 
-        }
-      
-    }
+			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_disable", false, Smod2.Config.SettingType.BOOL, true, "Disables Bad Boi Detector plugin."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_refreshtime", 30f, Smod2.Config.SettingType.FLOAT, true, "The time to wait before refreshing again"));
+			if (!this.GetConfigBool("bbd_disable"))
+			this.AddEventHandlers(new ServerEventHandler(this), Priority.Normal);
+			
+		}
+	}
 }
