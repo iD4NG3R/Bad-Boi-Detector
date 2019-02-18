@@ -38,7 +38,7 @@ namespace BadBoiDetector
 		{
 
 			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_disable", false, Smod2.Config.SettingType.BOOL, true, "Disables Bad Boi Detector plugin."));
-			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_refreshtime", 30f, Smod2.Config.SettingType.FLOAT, true, "The time to wait before refreshing again"));
+			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_refreshtime", 30f, Smod2.Config.SettingType.FLOAT, true, "The time to wait before refreshing again in seconds."));
 			if (!this.GetConfigBool("bbd_disable"))
 			this.AddEventHandlers(new ServerEventHandler(this), Priority.Normal);
 			

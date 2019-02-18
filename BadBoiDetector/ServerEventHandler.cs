@@ -23,6 +23,8 @@ namespace BadBoiDetector
 		{
 			plugin = pl;
 			refreshTime = pl.GetConfigFloat("bbd_refreshtime");
+			if (refreshTime < 10f)
+				refreshTime = 10f;
 			if (!isRunning)
 				Timing.RunCoroutine(_RefreshBadBois());
 		}
