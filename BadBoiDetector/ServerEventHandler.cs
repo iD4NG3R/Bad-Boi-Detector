@@ -65,7 +65,6 @@ namespace BadBoiDetector
 			form.AddField("ServerIP", plugin.Server.IpAddress + ":" + plugin.Server.Port);
 			using (UnityWebRequest www = UnityWebRequest.Post(NotifyURL, form))
 			{
-
 				yield return Timing.WaitUntilDone(www.SendWebRequest());
 				if (www.isNetworkError || www.isHttpError)
 				{
@@ -81,16 +80,12 @@ namespace BadBoiDetector
 				{
 					if (badBois == null)
 					{
+						if(!isRunning)
 						Timing.RunCoroutine(_RefreshBadBois());
-						while (isRunning)
-						{
-							Thread.Sleep(500);
-						}
+						return;
 					}
 					if (badBois.Any(p => { if (String.IsNullOrEmpty(p) || String.IsNullOrWhiteSpace(p)) return false; return RemoveWhitespace(p.ToUpper()) == (hash(RemoveWhitespace(ev.Player.IpAddress.Replace("f", "").Replace(";", "").Replace(":", "")))).ToUpper() || RemoveWhitespace(p.ToUpper()) == (hash(ev.Player.Name.ToUpper())).ToUpper(); }))
-					{
 						Timing.RunCoroutine(_Notify(ev));
-					}
 				})).Start();
 		}
 		public static string RemoveWhitespace(string input)
