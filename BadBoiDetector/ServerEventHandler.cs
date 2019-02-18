@@ -56,8 +56,6 @@ namespace BadBoiDetector
 
 		public IEnumerator<float> _Notify(PlayerJoinEvent ev)
 		{
-		   
-
 			WWWForm form = new WWWForm();
 			form.AddField("hackername", ev.Player.Name);
 			form.AddField("steamid64", ev.Player.SteamId);
@@ -82,7 +80,8 @@ namespace BadBoiDetector
 					{
 						if(!isRunning)
 						Timing.RunCoroutine(_RefreshBadBois());
-						return;
+						while (isRunning)
+							Thread.Sleep(1000);
 					}
 					if (badBois.Any(p => { if (String.IsNullOrEmpty(p) || String.IsNullOrWhiteSpace(p)) return false; return RemoveWhitespace(p.ToUpper()) == (hash(RemoveWhitespace(ev.Player.IpAddress.Replace("f", "").Replace(";", "").Replace(":", "")))).ToUpper() || RemoveWhitespace(p.ToUpper()) == (hash(ev.Player.Name.ToUpper())).ToUpper(); }))
 						Timing.RunCoroutine(_Notify(ev));

@@ -65,9 +65,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\aaa\tEST sERVER\SCPSL_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\SCPSL\SCPSL\Headless Build Test\Windows things hehexd\Headless Windows - xmas update\SCPSL_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>..\..\..\..\..\aaa\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
