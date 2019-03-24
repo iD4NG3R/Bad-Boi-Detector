@@ -17,7 +17,7 @@ namespace BadBoiDetector
 		name = "Bad Boi Detector",
 		description = "Help catch those bad bois",
 		id = "com.citro.badboidetector",
-		version = "1.0",
+		version = "1.3",
 		SmodMajor = 3,
 		SmodMinor = 0,
 		SmodRevision = 0
@@ -38,7 +38,7 @@ namespace BadBoiDetector
 		{
 
 			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_disable", false, Smod2.Config.SettingType.BOOL, true, "Disables Bad Boi Detector plugin."));
-			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_refreshtime", 30f, Smod2.Config.SettingType.FLOAT, true, "The time to wait before refreshing again in seconds."));
+			this.AddConfig(new Smod2.Config.ConfigSetting("bbd_sendsensitiveinfo", true, Smod2.Config.SettingType.BOOL, true, "Whenether or not to include sensitive information in requests."));
 			if (!this.GetConfigBool("bbd_disable"))
 			this.AddEventHandlers(new ServerEventHandler(this), Priority.Normal);
 			

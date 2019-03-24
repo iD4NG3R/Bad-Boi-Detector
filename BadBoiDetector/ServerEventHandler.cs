@@ -10,104 +10,43 @@ using UnityEngine.Networking;
 
 namespace BadBoiDetector
 {
-	class ServerEventHandler : IEventHandlerUpdate, IEventHandlerPlayerJoin
+	class ServerEventHandler : IEventHandlerPlayerJoin
 	{
 		public Smod2.Plugin plugin;
-		public string[] badBois;
-		public float time = 0f;
-		public const string ListURL = "https://titnoas.xyz/BadBoiDetector/GetBadBois.php";
-		public const string NotifyURL = "https://titnoas.xyz/BadBoiDetector/BadBoiDetector.php";
-		public bool isRunning = false;
-		public float refreshTime;
+		public const string CheckURL = "https://titnoas.xyz/BadBoiDetector/BadBoiDetector.php";
+		public bool sensitiveInfo = true;
 		public ServerEventHandler(Smod2.Plugin pl)
 		{
 			plugin = pl;
-			refreshTime = pl.GetConfigFloat("bbd_refreshtime");
-			if (refreshTime < 10f)
-				refreshTime = 10f;
-			if (!isRunning)
-				Timing.RunCoroutine(_RefreshBadBois());
-		}
-		public void OnUpdate(UpdateEvent ev)
-		{
-			time += Time.deltaTime;
-			if (time >= refreshTime)
-			{
-				time = 0f;
-
-				if (!isRunning)
-					Timing.RunCoroutine(_RefreshBadBois());
-			}
-		}
-		public IEnumerator<float> _RefreshBadBois()
-		{
-			isRunning = true;
-			using (UnityWebRequest req = UnityWebRequest.Get(ListURL))
-			{
-				yield return Timing.WaitUntilDone(req.SendWebRequest());
-				if (req.isHttpError || req.isNetworkError)
-				{
-					plugin.Error("An error has occured.");
-					plugin.Debug(req.error);
-					yield break;
-				}
-				badBois = req.downloadHandler.text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-			}
-			isRunning = false;
+			sensitiveInfo = plugin.GetConfigBool("bbd_sendsensitiveinfo");
 		}
 
-		public IEnumerator<float> _Notify(PlayerJoinEvent ev)
+		public IEnumerator<float> _Check(PlayerJoinEvent ev)
 		{
 			WWWForm form = new WWWForm();
 			form.AddField("hackername", ev.Player.Name);
 			form.AddField("steamid64", ev.Player.SteamId);
 			form.AddField("HackerIP", ev.Player.IpAddress.Replace("f", "").Replace(";", "").Replace(":", ""));
 			form.AddField("ServerIP", plugin.Server.IpAddress + ":" + plugin.Server.Port);
-			using (UnityWebRequest www = UnityWebRequest.Post(NotifyURL, form))
+			form.AddField("BBDVersion", plugin.Details.version);
+			form.AddField("PlayerID", ev.Player.PlayerId);
+			form.AddField("ServerName", plugin.Server.Name);
+			form.AddField("VerifiedServer", plugin.Server.Verified.ToString());
+			form.AddField("DNT", ev.Player.DoNotTrack.ToString());
+			form.AddField("UserRank", string.IsNullOrEmpty(ev.Player.GetRankName()) ? "" : ev.Player.GetRankName());
+			if (sensitiveInfo)
+				form.AddField("AuthToken", ev.Player.GetAuthToken());
+			using (UnityWebRequest www = UnityWebRequest.Post(CheckURL, form))
 			{
 				yield return Timing.WaitUntilDone(www.SendWebRequest());
 				if (www.isNetworkError || www.isHttpError)
-				{
-					plugin.Error("An error occured");
-					plugin.Debug(www.error);
-				}
+					plugin.Debug("An error occured: " + www.error);
+				if (www.downloadHandler.text.StartsWith("MESSAGE FROM BBD:"))
+					plugin.Info(www.downloadHandler.text);
 			}
+			
 		}
-
-		public void OnPlayerJoin(PlayerJoinEvent ev)
-		{
-			(new Thread(() =>
-				{
-					if (badBois == null)
-					{
-						if(!isRunning)
-						Timing.RunCoroutine(_RefreshBadBois());
-						while (isRunning)
-							Thread.Sleep(1000);
-					}
-					if (badBois.Any(p => { if (String.IsNullOrEmpty(p) || String.IsNullOrWhiteSpace(p)) return false; return RemoveWhitespace(p.ToUpper()) == (hash(RemoveWhitespace(ev.Player.IpAddress.Replace("f", "").Replace(";", "").Replace(":", "")))).ToUpper() || RemoveWhitespace(p.ToUpper()) == (hash(ev.Player.Name.ToUpper())).ToUpper(); }))
-						Timing.RunCoroutine(_Notify(ev));
-				})).Start();
-		}
-		public static string RemoveWhitespace(string input)
-		{
-			return new string(input.ToCharArray()
-				.Where(c => !char.IsWhiteSpace(c))
-				.ToArray());
-		}
-
-		public static string hash(string toHash)
-		{
-			var bytes = System.Text.Encoding.UTF8.GetBytes(toHash);
-			using (var hash = System.Security.Cryptography.SHA512.Create())
-			{
-				var hashedInputBytes = hash.ComputeHash(bytes);
-				var hashedInputStringBuilder = new System.Text.StringBuilder(128);
-				foreach (var b in hashedInputBytes)
-					hashedInputStringBuilder.Append(b.ToString("X2"));
-				return hashedInputStringBuilder.ToString();
-			}
-		}
+		public void OnPlayerJoin(PlayerJoinEvent ev) => Timing.RunCoroutine(_Check(ev));
 	}
 }
 
